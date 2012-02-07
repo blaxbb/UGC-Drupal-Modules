@@ -130,8 +130,10 @@ function game_get_players_page($node) {
       'sort' => 'asc',
     ),
   );
+
   //TODO REPLACE MODULE NAME
   $game = $node->field_game['und'][0];
+
   $module = game_get_module_from_gametype($game['type_id']);
   $header = array_merge($header, (array) module_invoke($module, 'players_page_headers', $game));
 
@@ -152,11 +154,11 @@ function game_get_players_page($node) {
     $rows[] = $data;
   }
 
-  $output = theme('table', array('header' => array(
+  $output = theme('table', array(
       'header' => $header,
       'rows' => $rows,
       'empty' => 'No Players',
-    )));
+    ));
 
   $output .= theme('pager', array('tags' => array(
       'tags' => array(),

@@ -6,6 +6,7 @@
 
 require DRUPAL_ROOT . '/' . drupal_get_path('module', 'infection') . '/infection.db.inc';
 require DRUPAL_ROOT . '/' . drupal_get_path('module', 'infection') . '/infection.ui.inc';
+require DRUPAL_ROOT . '/' . drupal_get_path('module', 'infection') . '/infection.field.inc';
 
 /**
  * @todo Please document this function.
