@@ -1,0 +1,8 @@
+name = Infection
+description = Infection gametype
+core = 7.x
+package = Urban Gaming Club
+
+dependencies[] = game
+
+files[] = infection.db.inc

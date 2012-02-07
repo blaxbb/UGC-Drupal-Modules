@@ -1,0 +1,60 @@
+<?php
+/**
+ * @file
+ * UGC Game Module
+ */
+
+require DRUPAL_ROOT . '/' . drupal_get_path('module', 'infection') . '/infection.db.inc';
+require DRUPAL_ROOT . '/' . drupal_get_path('module', 'infection') . '/infection.ui.inc';
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function infection_permission() {
+  return array(
+    'view oz' => array(
+      'title' => t('View the hidden OZs'),
+      'description' => t('Allows visiblity of hidden OZ status'),
+      'restrict access' => TRUE,
+    ),
+    'view other killids' => array(
+      'title' => t("View other users killid's"),
+      'description' => t('Allows visiblity of killids'),
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function infection_game_gametype() {
+  $gametype = array(
+    'title' => 'Infection',
+    'id' => 'infection',
+    'description' => 'Infection gametype',
+    'states' => array(
+      'registration closed',
+      'registration open',
+      "game start - OZs hidden",
+      "Reveal OZ's",
+    ),
+  );
+  return $gametype;
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function infection_get_status_string($game, $status) {
+  $string = $game['gamestate']['playerStates'][$status];
+  if (user_access('view oz') && $status == 2) {
+    $string = $game['gamestate']['playerStates'][0];
+  }
+
+  return $string;
+
+}

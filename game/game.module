@@ -1,0 +1,173 @@
+<?php
+/**
+ * @file
+ * UGC Game Module
+ */
+
+require DRUPAL_ROOT . '/' . drupal_get_path('module', 'game') . '/game.db.inc';
+require DRUPAL_ROOT . '/' . drupal_get_path('module', 'game') . '/game.ui.inc';
+require DRUPAL_ROOT . '/' . drupal_get_path('module', 'game') . '/game.field.inc';
+
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function game_permission() {
+  return array(
+    'edit settings' => array(
+      'title' => t('Edit Game Settings'),
+      'description' => t('Adjust field_game settings'),
+      'restrict access' => TRUE,
+    ),
+    'edit players' => array(
+      'title' => t("Edit Players"),
+      'description' => t('Edit player properties from game module'),
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function game_game_gametype() {
+  $gametype = array(
+    'title' => 'Base Gametype',
+    'id' => 'base_gametype',
+    'description' => 'The base gametype',
+    'states' => array(
+      'registration closed',
+      'registration open',
+    ),
+  );
+  return $gametype;
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function game_menu_access_user($user, $gameid = NULL) {
+
+  global $user;
+  if ($gameid == NULL || game_node_has_game(node_load($gameid))) {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function game_menu_access_user_edit($user) {
+  global $user;
+  if ($user->uid == 1 || user_access('edit players')) {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function game_node_has_game($node) {
+  if (!isset($node->field_game) || $node->field_game == NULL) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function game_menu_access_node($node) {
+
+  global $user;
+
+  if (!node_access('view', $node, $user)) {
+    return FALSE;
+  }
+
+  if (!game_node_has_game($node)) {
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function game_menu_access_settings($node) {
+
+  global $user;
+
+  if (!node_access('view', $node, $user)) {
+    return FALSE;
+  }
+
+  if (!isset($node->field_game) || $node->field_game == NULL) {
+    return FALSE;
+  }
+
+  if ($user->uid == 1 || user_access('edit settings')) {
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function game_get_game($gameid) {
+  $node = node_load($gameid);
+  $game = field_get_items('node', $node, 'field_game');
+  $game = $game[0];
+  return $game;
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function game_invoke($game, $hook) {
+  $args = func_get_args();
+  $args[0] = game_get_module_from_gametype($args[0]['type_id']);
+  return call_user_func_array('module_invoke', $args);
+
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function game_generate_id($length, $safechars = TRUE) {
+  $complete = 0;
+
+  $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  if ($safechars) {
+    $chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+  }
+
+  $genid = '';
+
+  for ($i = 0; $i < $length; $i++) {
+    $genid .= $chars[mt_rand(0, strlen($chars) -1)];
+  }
+
+  return $genid;
+
+}

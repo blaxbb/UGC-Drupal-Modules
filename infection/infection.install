@@ -1,0 +1,97 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Installs the `infection_data` database table on install of infection module.
+ */
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function infection_schema() {
+
+  $schema['infection_data'] = array(
+    'description' => 'The table containing player data for infection.',
+    'fields' => array(
+      'entry' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Unique Entry ID',
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Users UID',
+      ),
+      'gameid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Unique Entry ID',
+      ),
+      'status' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'killid' => array(
+        'type' => 'varchar',
+        'length' => '255',
+        'not null' => TRUE,
+      ),
+      'tags' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'killedbyuid' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'killedtime' => array(
+        'type' => 'int',
+        'size' => 'big',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'ozvolunteer' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'unsigned' => TRUE,
+        'default' => 0,
+      ),
+      'data' => array(
+        'type' => 'blob',
+        'size' => 'big',
+        'default' => NULL,
+      ),
+    ),
+    'primary key' => array('entry'),
+  );
+
+  return $schema;
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function infection_install() {
+  // Create my tables.
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function infection_uninstall() {
+  // Drop my tables.
+
+}

@@ -1,0 +1,9 @@
+name = UGC Game
+description = Creates UGC Games
+core = 7.x
+package = Urban Gaming Club
+
+dependencies[] = field
+
+files[] = game.module
+files[] = game_db.inc

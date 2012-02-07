@@ -1,0 +1,123 @@
+<?php
+// $Id$
+
+/**
+ * @file
+ * Installs the `game` database table on install of assassins module.
+ */
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function game_schema() {
+
+  $schema['game_data'] = array(
+    'description' => 'The table containing player data for games.',
+    'fields' => array(
+      'entry' => array(
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'Unique Entry ID',
+      ),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Users UID',
+      ),
+      'gameid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'description' => 'Unique Entry ID',
+      ),
+      'data' => array(
+        'type' => 'blob',
+        'size' => 'big',
+        'default' => NULL,
+      ),
+    ),
+    'primary key' => array('entry'),
+  );
+
+  $schema['game_gametypes'] = array(
+    'description' => 'The base table for gametypes.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'ID of the gametype',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'title' => array(
+        'description' => 'Title of the gametype',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'Description of the gametype',
+        'type' => 'text',
+        'size' => 'normal',
+      ),
+      'module' => array(
+        'description' => 'The module responsible for this gametype',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'data' => array(
+        'type' => 'blob',
+        'size' => 'big',
+        'default' => NULL,
+      ),
+    ),
+    'primary key' => array('id'),
+  );
+  return $schema;
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function game_install() {
+
+
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function game_uninstall() {
+  // Drop my tables.
+
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function game_field_schema($field) {
+  switch ($field['type']) {
+    case 'game':
+      $columns = array(
+        'type_id' => array(
+          'type' => 'text',
+          'size' => 'medium',
+        ),
+        'gamestate' => array(
+          'type' => 'blob',
+          'size' => 'big',
+          'default' => NULL,
+        ),
+      );
+      break;
+  }
+
+  return array(
+    'columns' => $columns,
+  );
+}
