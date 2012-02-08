@@ -177,21 +177,23 @@ function game_get_all_players_pager($game, $header) {
 
   $table = module_invoke(game_get_module_from_gametype($game_type), 'game_get_db_table');
 
-  $query = db_select('game_data', 'g');
+  $query = db_select('game_data', 'g')
+    ->extend('PagerDefault')
+    ->limit(25)
+    ->extend('TableSort')
+      ->orderByHeader($header);
   $query->join('users', 'u', 'g.uid = u.uid');
   if ($table != "") {
     $query->join($table, 't', 't.uid = u.uid');
   }
+  $query
+    ->condition('g.gameid', $game_id, '=');
   $query->groupBy('u.uid')
   ->fields('u', array('name', 'picture'))
     ->fields('g');
   if ($table != "") {
     $query->fields('t');
   }
-
-  $query->extend('PagerDefault')->limit(50)
-    ->extend('TableSort')->orderByHeader($header)
-    ->condition('g.gameid', $game_id, '=');
   $result = $query->execute();
 
   $players = array();

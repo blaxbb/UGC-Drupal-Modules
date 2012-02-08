@@ -64,6 +64,11 @@ function game_menu() {
 function game_register_form($form, &$form_state, $node, $player = NULL) {
   global $user;
 
+//  for($i = 2; $i < 50; $i++)
+//  {
+//    game_register_player($node->field_game['und'][0], $i);
+//  }
+
   if ($node->field_game == NULL) {
     return;
   }
@@ -158,11 +163,14 @@ function game_get_players_page($node) {
       'header' => $header,
       'rows' => $rows,
       'empty' => 'No Players',
+      'sticky' => TRUE,
     ));
 
-  $output .= theme('pager', array('tags' => array(
-      'tags' => array(),
-    )));
+  $output .= theme('pager',
+    array(
+      'tags' => array()
+    )
+  );
 
   return ($output);
 

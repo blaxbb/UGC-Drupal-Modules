@@ -20,6 +20,7 @@ function infection_form_game_register_form_alter(&$form, &$form_state, $form_id)
 
     $form['ozvolunteer'] = array(
       '#type' => 'checkbox',
+      '#title' => 'OZ Volunteer?',
       '#default_value' => isset($player['ozvolunteer']) ? $player['ozvolunteer'] : FALSE,
     );
     //$form['#submit'][] = 'infection_register_submit';

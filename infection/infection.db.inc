@@ -22,7 +22,7 @@ function infection_game_register_player($game, $uid, $data = NULL, $form = NULL,
     $oz = $form_state['values']['ozvolunteer'];
   }
   elseif ($oz == NULL) {
-    $oz = FALSE;
+    $oz =0;
   }
 
   if ($killid == NULL) {

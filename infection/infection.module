@@ -52,7 +52,7 @@ function infection_game_gametype() {
  */
 function infection_get_status_string($game, $status) {
   $string = $game['gamestate']['playerStates'][$status];
-  if (user_access('view oz') && $status == 2) {
+  if (!user_access('view oz') && $status == 2) {
     $string = $game['gamestate']['playerStates'][0];
   }
 
