@@ -96,10 +96,13 @@ function game_field_widget_info() {
 function game_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
   game_update_gametype_cache();
 
+  $game = $items[$delta];
+
   $widget = $element;
   $widget['#delta'] = $delta;
   switch ($instance['widget']['type']) {
     case 'game':
+
       $widget['games'] = array(
         '#type' => 'fieldset',
         '#title' => 'Gametypes',
@@ -126,7 +129,7 @@ function game_field_widget_form(&$form, &$form_state, $field, $instance, $langco
           '#type' => 'fieldset',
           '#delta' => $delta,
           '#collapsible' => TRUE,
-          '#collapsed' => TRUE,
+          '#collapsed' => isset($game['type_id']) && ($gametype['id'] == $game['type_id']) ? FALSE : TRUE,
           '#title' => filter_xss($gametype['title']),
         );
         $options[$gametype['id']] = $gametype['title'];
@@ -150,6 +153,7 @@ function game_field_widget_form(&$form, &$form_state, $field, $instance, $langco
   }
 
   $element['game'] = $widget;
+  $element['game']['#gamestate'] = $game['gamestate'];
   return $element;
 }
 
@@ -160,7 +164,6 @@ function game_field_widget_form(&$form, &$form_state, $field, $instance, $langco
 function game_widget_validate($element, &$form_state) {
   $delta = $element['#delta']; // TODO: Isn't there a better way to find out which element?
   $values = $form_state['values']['field_game']['und'][$delta]['game']['games'];
-
   //form_set_value($element,
 }
 
@@ -186,17 +189,25 @@ function game_field_insert($entity_type, $entity, $field, $instance, $langcode, 
  * @see http://drupal.org/node/1354
  */
 function game_field_update($entity_type, $entity, $field, $instance, $langcode, &$items) {
-  drupal_set_message("UPDATING");
+
   for ($i = 0; $i < count($entity->field_game['und']); $i++) {
 
     $field_game = $entity->field_game['und'][$i];
+    $original_field_game = $entity->original->field_game['und'][$i];
 
     if (isset($field_game['game']['games']['selected'])) {
       //UPDATING FROM FORM
       $items[$i]['type_id'] = $field_game['game']['games']['selected'];
 
       $items[$i]['gamestate'] = $field_game['game']['games'][$items[$i]['type_id']];
-      $items[$i]['gamestate']['state'] = 0;
+
+      if($original_field_game['type_id'] == $field_game['game']['games']['selected']) {
+        //The type_id has not changed, so don't reset the state.
+        $items[$i]['gamestate']['state'] = isset($original_field_game['gamestate']['state']) ?  $original_field_game['gamestate']['state'] : 0;
+      }
+      else {
+        $items[$i]['gamestate']['state'] = 0;
+      }
     }
     else {
       //UPDATING PROGRAMMATICALLY

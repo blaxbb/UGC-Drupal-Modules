@@ -10,8 +10,7 @@ require DRUPAL_ROOT . '/' . drupal_get_path('module', 'game') . '/game.field.inc
 
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Implements hook_permission().
  */
 function game_permission() {
   return array(
@@ -48,12 +47,20 @@ function game_game_gametype() {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
- */
+* Access callback: Determines if user info page is visible
+*
+* @param $user
+*   User to check access for.
+* @param $gameid
+*   Game ID to check existance of.
+*
+* @return
+*   A boolean for the accessability of the page.
+*
+* @see game_menu()
+*/
 function game_menu_access_user($user, $gameid = NULL) {
 
-  global $user;
   if ($gameid == NULL || game_node_has_game(node_load($gameid))) {
     return TRUE;
   }
@@ -62,9 +69,16 @@ function game_menu_access_user($user, $gameid = NULL) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
- */
+* Access callback: Determines if user edit page is acessable
+*
+* @param $user
+*   User whose page is trying to be viewed.
+*
+* @return
+*   A boolean for the accessability of the page.
+*
+* @see game_menu()
+*/
 function game_menu_access_user_edit($user) {
   global $user;
   if ($user->uid == 1 || user_access('edit players')) {
@@ -75,8 +89,13 @@ function game_menu_access_user_edit($user) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Determines if a node has a field_game attached to it.
+ *
+ * @param $node
+ *   The node to check for a field_game item.
+ *
+ * @return
+ *   Boolean whether the field is attached.
  */
 function game_node_has_game($node) {
   if (!isset($node->field_game) || $node->field_game == NULL) {
@@ -87,9 +106,19 @@ function game_node_has_game($node) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
- */
+* Access callback: Determines if game items should be accessable.
+*
+*   Hide the links provided in game_menu() if there is no field_game
+*   or if the user cannot access the original node.
+*
+* @param $user
+*   User whose page is trying to be viewed.
+*
+* @return
+*   A boolean for the accessability of the page.
+*
+* @see game_menu()
+*/
 function game_menu_access_node($node) {
 
   global $user;
@@ -106,9 +135,16 @@ function game_menu_access_node($node) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
- */
+* Access callback: Determines if game settings should be accessable.
+*
+* @param $node
+*   Node whose settings page is trying to be viewed.
+*
+* @return
+*   A boolean for the accessability of the page.
+*
+* @see game_menu()
+*/
 function game_menu_access_settings($node) {
 
   global $user;
@@ -129,8 +165,13 @@ function game_menu_access_settings($node) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Gets the field_game item from a node.
+ *
+ * @param $node
+ *   The node to get a field_game item from.
+ *
+ * @return
+ *   field_game item.
  */
 function game_get_game($gameid) {
   $node = node_load($gameid);
@@ -140,8 +181,22 @@ function game_get_game($gameid) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Invokes a function on a game module.
+ * 
+ *   Helper function which extends module_invoke by 
+ *   looking up the game's module and invoking the
+ *   requested function on that.
+ *
+ * @param $game
+ *   The game whose type will be invoked.
+ * @param $hook
+ *   A string hook of the function to invoke
+ * @param $args
+ *   Any arguments will pass to the invoked function
+ *
+ * @return
+ *   Return value of invoked function
+ * @see http://api.drupal.org/api/drupal/includes!module.inc/function/module_invoke/7
  */
 function game_invoke($game, $hook) {
   $args = func_get_args();
@@ -151,8 +206,16 @@ function game_invoke($game, $hook) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Creates a randomized alphanumeric id.
+ * 
+ * @param $length
+ *   The length of the ID to create.
+ * @param $safechars
+ *   Remove similar looking characters from the randomization.
+ *   
+ * @return
+ *   String of randomized ID
+ * 
  */
 function game_generate_id($length, $safechars = TRUE) {
   $complete = 0;
@@ -169,5 +232,4 @@ function game_generate_id($length, $safechars = TRUE) {
   }
 
   return $genid;
-
 }
