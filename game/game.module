@@ -165,10 +165,10 @@ function game_menu_access_settings($node) {
 }
 
 /**
- * Gets the field_game item from a node.
+ * Gets the field_game item from a nid/gameid.
  *
- * @param $node
- *   The node to get a field_game item from.
+ * @param $gameid
+ *   The nid or gameid to get a field_game item from.
  *
  * @return
  *   field_game item.
@@ -217,13 +217,7 @@ function game_invoke($game, $hook) {
  *   String of randomized ID
  * 
  */
-function game_generate_id($length, $safechars = TRUE) {
-  $complete = 0;
-
-  $chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  if ($safechars) {
-    $chars = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
-  }
+function _game_generate_id($length, $chars) {
 
   $genid = '';
 
@@ -232,4 +226,29 @@ function game_generate_id($length, $safechars = TRUE) {
   }
 
   return $genid;
+}
+
+function game_generate_id($length, $game = NULL) {
+  $allchars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  if($game == null)
+  {
+    return _game_generate_id($length, $allchars);
+  }
+  
+  $complete = FALSE;
+  $iterations = 0;
+  while($complete == FALSE && $iterations < 10) {
+    $iterations++;
+    $id = _game_generate_id($length, $allchars);
+    if(game_invoke($game, 'game_new_id_is_valid', $game, $id)) {
+      drupal_set_message('ID generated in ' . $iterations . ' iterations.');
+      return($id);
+    }
+  }
+  drupal_set_message('ID Failed to generate in ' . $iterations . ' iterations.', 'error');
+  return FALSE;
+}
+
+function game_generate_safechars_id($length, $game = NULL) {
+
 }

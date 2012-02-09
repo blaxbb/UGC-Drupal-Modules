@@ -8,59 +8,27 @@
  * @todo Please document this function.
  * @see http://drupal.org/node/1354
  */
-function infection_game_register_player($game, $uid, $data = NULL, $form = NULL, $form_state = NULL, $killid = NULL, $oz = NULL) {
-  global $user;
-  $game_id = $game['game_id'];
+function infection_game_save_player($player) {
 
-  $kill_id_length = $game['gamestate']['killidLength'];
-
-  $data = array();
+  $game = game_get_game($player['gameid']);
+  $killidlength = $game['gamestate']['killidLength'];
+  $killid = isset($player['killid']) ? $player['killid'] : game_generate_id($killidlength, $game);
 
 
-
-  if ($form_state != NULL) {
-    $oz = $form_state['values']['ozvolunteer'];
-  }
-  elseif ($oz == NULL) {
-    $oz =0;
-  }
-
-  if ($killid == NULL) {
-    $killid = game_generate_id($kill_id_length);
-  }
-  //TODO CHECK DUPES
-
-  $player = array(
-    'uid' => $uid,
-    'ozvolunteer' => $oz,
-    'killid' => $killid,
-    'data' => serialize($data),
-  );
-
-  infection_save_player($game, $player);
-
-  return;
-}
-
-/**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
- */
-function infection_save_player($game, $player) {
   db_merge('infection_data')
-    ->key(array('gameid' => $game['game_id'], 'uid' => $player['uid']))
+    ->key(array('gameid' => $player['gameid'], 'uid' => $player['uid']))
     ->fields(array(
-    'gameid' => $game['game_id'],
+    'gameid' => $player['gameid'],
     'uid' => $player['uid'],
     'status' => isset($player['status']) ? $player['status'] : 0,
-    'killid' => $player['killid'],
+    'killid' => $killid,
     'tags' => isset($player['tags'] ) ? $player['tags'] : 0,
     'killedbyuid' => isset($player['killedbyuid']) ? $player['killedbyuid'] : 0,
     'killedtime' => isset($player['killedtime']) ? $player['killedtime'] : 0,
     'ozvolunteer' => isset($player['ozvolunteer']) ? $player['ozvolunteer'] : 0,
-    'data' => serialize($player['data']),
+    'data' => isset($player['data']) ? serialize($player['data']) : NULL,
   ))
-    ->execute();
+  ->execute();
 }
 
 /**
@@ -72,6 +40,25 @@ function infection_game_delete_player($game, $uid) {
   ->condition('gameid', $game['game_id'], '=')
   ->condition('uid', $uid, '=')
   ->execute();
+}
+
+function infection_get_player_from_killid($game, $killid)
+{
+  $query = db_select('infection_data', 'i');
+  $query->join('users', 'u', 'i.uid = u.uid');
+  $query->join('game_data', 'g', 'g.uid = i.uid');
+  $query->fields('i');
+  $query->fields('g')
+    ->fields('u', array('name', 'picture'))
+    ->condition('g.gameid', $game['game_id'], '=')
+    ->condition('i.killid', $killid, '=');
+    
+
+  $result = $query->execute()->fetchAssoc();
+  if (isset($result['data'])) {
+    $result['data'] = unserialize($result['data']);
+  }  
+  return $result;
 }
 
 /**

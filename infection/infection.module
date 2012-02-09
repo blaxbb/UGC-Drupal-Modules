@@ -57,5 +57,47 @@ function infection_get_status_string($game, $status) {
   }
 
   return $string;
+}
 
+function infection_attempt_kill($game, $killer, $killid)
+{
+  if ($game['gamestate']['state'] == 0) {
+  //Game is not closed
+    return "Registration is still closed";
+  }
+  
+  if ($game['gamestate']['state'] == 1) {
+  //Game is not closed
+    return "Game has not started";
+  }
+  
+  if ($killer['status'] == 0)
+  {
+    return "You are not a zombie.";
+  }
+  $killed = infection_get_player_from_killid($game, $killid);
+  if ($killed == null)
+  {
+    return "Killid lookup failed"; 
+  }
+  
+  _infection_kill_player($game, $killer, $killed);
+}
+
+function _infection_kill_player($game, $killer, $killed)
+{
+  drupal_set_message($killer['name'] . " killed " . $killed['name']);
+  
+  $killer['tags']++;
+  $killed['status'] = 1;
+  game_save_player($killer);
+  
+}
+
+function infection_game_new_id_is_valid($game, $id)
+{
+  if(infection_get_player_from_killid($game, $id) != null)
+    return false;
+    
+  return true;
 }

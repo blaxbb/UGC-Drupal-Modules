@@ -146,14 +146,14 @@ function game_field_widget_form(&$form, &$form_state, $field, $instance, $langco
         '#type' => 'select',
         '#title' => t('Select a gametype.'),
         '#options' => $options,
-        '#default_value' => $items[$delta]['type_id'],
+        '#default_value' => isset($items[$delta]['type_id']) ? $items[$delta]['type_id'] : 0,
       );
 
       break;
   }
 
   $element['game'] = $widget;
-  $element['game']['#gamestate'] = $game['gamestate'];
+//  $element['game']['#gamestate'] = $game['gamestate'];
   return $element;
 }
 

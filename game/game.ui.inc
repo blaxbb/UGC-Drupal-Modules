@@ -66,14 +66,15 @@ function game_register_form($form, &$form_state, $node, $player = NULL) {
 
 //  for($i = 2; $i < 50; $i++)
 //  {
-//    game_register_player($node->field_game['und'][0], $i);
-//  }
+    //game_register_player($node->field_game['und'][0], $i);
+  //}
 
   if ($node->field_game == NULL) {
     return;
   }
 
   $form['#game'] = $node->field_game['und'][0];
+
   if (!game_player_is_registered($form['#game'], $user->uid)) {
     $form['#registered'] = FALSE;
     $form['submit'] = array(
@@ -104,12 +105,24 @@ function game_register_form($form, &$form_state, $node, $player = NULL) {
  * @todo Please document this function.
  * @see http://drupal.org/node/1354
  */
-function game_register_form_submit($form, &$form_state) {
+function game_register_form_validate($form, &$form_state) {
   global $user;
 
   $game_id = $form['#game']['game_id'];
   $game_type = $form['#game']['type_id'];
-  game_register_player($form['#game'], $user->uid, $form, $form_state);
+  $player = array(
+    'gameid' => $game_id,
+    'uid' => $user->uid,
+  );
+  $form_state['values']['#player'] = $player;
+}
+
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
+function game_register_form_submit($form, &$form_state) {
+  game_save_player($form_state['values']['#player']);
 }
 
 /**
@@ -139,8 +152,7 @@ function game_get_players_page($node) {
   //TODO REPLACE MODULE NAME
   $game = $node->field_game['und'][0];
 
-  $module = game_get_module_from_gametype($game['type_id']);
-  $header = array_merge($header, (array) module_invoke($module, 'players_page_headers', $game));
+  $header = array_merge($header, (array) game_invoke($game, 'players_page_headers', $game));
 
 
 
@@ -154,7 +166,7 @@ function game_get_players_page($node) {
         l($player->name, 'user/' . $player->uid . '/games/' . $game['game_id']),
       ),
     );
-    $data = array_merge($data['data'], (array) module_invoke($module, 'players_page_data', $game, $player));
+    $data = array_merge($data['data'], (array) game_invoke($game, 'players_page_data', $game, $player));
 
     $rows[] = $data;
   }
@@ -298,7 +310,7 @@ function game_settings_form($form, &$form_state, $node) {
   $form['state'] = array(
     '#weight' => -10,
     '#type' => 'select',
-    '#title' => t('Select a gametype.'),
+    '#title' => t('Select a gamestate.'),
     '#options' => $states,
     '#default_value' => $game['gamestate']['state'],
   );

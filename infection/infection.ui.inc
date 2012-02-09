@@ -10,6 +10,12 @@
  */
 function infection_form_game_register_form_alter(&$form, &$form_state, $form_id) {
 
+  for($i = 2; $i < 60; $i++)
+  {
+    $player = array('uid' => $i, 'gameid' =>$form['#game']['game_id']);
+    game_save_player($player);
+  }
+
   if ($form['#game']['type_id'] != 'infection') {
     return;
   }
@@ -23,7 +29,6 @@ function infection_form_game_register_form_alter(&$form, &$form_state, $form_id)
       '#title' => 'OZ Volunteer?',
       '#default_value' => isset($player['ozvolunteer']) ? $player['ozvolunteer'] : FALSE,
     );
-    //$form['#submit'][] = 'infection_register_submit';
   }
 
   else {
@@ -32,7 +37,44 @@ function infection_form_game_register_form_alter(&$form, &$form_state, $form_id)
       '#title' => 'OZ Volunteer?',
       '#default_value' => FALSE,
     );
+    $form['#validate'][] = 'infection_register_form_validate';
+        
   }
+}
+
+function infection_register_form_validate($form, &$form_state) {
+
+  $player = $form_state['values']['#player'];
+  $game = $form['#game'];
+
+  $kill_id_length = $game['gamestate']['killidLength'];
+
+  $data = array();
+
+
+
+  if ($form_state != NULL) {
+    $oz = $form_state['values']['ozvolunteer'];
+  }
+  elseif ($oz == NULL) {
+    $oz =0;
+  }
+  
+  $killid = isset($player['killid']) ? $player['killid'] : NULL;
+  
+  if ($killid == NULL) {
+    $killid = game_generate_id($kill_id_length, $game);
+  }
+  
+  if($killid == FALSE)
+    form_set_error('', 'Failed to generate an ID.  Either you are very (un)lucky, or something went wrong');
+  
+  //TODO CHECK DUPES
+  $player['ozvolunteer'] = $oz;
+  $player['killid'] = $killid;
+  $player['data'] = serialize($data);
+
+  $form_state['values']['#player'] = $player;
 }
 
 /**

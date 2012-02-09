@@ -5,26 +5,19 @@
  * @todo Please document this function.
  * @see http://drupal.org/node/1354
  */
-function game_register_player($game, $uid, $form = NULL, &$form_state = NULL, $data = NULL) {
+function game_save_player($player) {
 
-  if (is_array($game)) {
-    $game_id = $game['game_id'];
-    $game_type = $game['type_id'];
-  }
-  else {
-    $game_id = $game;
-  }
-
+  $game = game_get_game($player['gameid']);
   db_merge('game_data')
-    ->key(array('gameid' => $game_id, 'uid' => $uid))
+    ->key(array('gameid' => $player['gameid'], 'uid' => $player['uid']))
     ->fields(array(
-    'gameid' => $game_id,
-    'uid' => $uid,
-    'data' => serialize($data),
+    'gameid' => $player['gameid'],
+    'uid' => $player['uid'],
+    'data' => isset($player['data']) ? serialize($player['data']) : NULL,
   ))
     ->execute();
 
-  game_invoke($game, 'game_register_player', $game, $uid, $data, $form, $form_state);
+  game_invoke($game, 'game_save_player', $player);
   //module_invoke(game_get_module_from_gametype($game_type), 'game_register_player',$game, $uid, $data, $form, $form_state);
 }
 
@@ -36,7 +29,7 @@ function game_delete_player($game, $uid) {
 
   $game_id = $game['game_id'];
   $game_type = $game['type_id'];
-  drupal_set_message('<pre>' . print_r($game, TRUE) . $uid . '</pre>');
+
   db_delete('game_data')
     ->condition('gameid', $game_id, '=')
     ->condition('uid', $uid, '=')
@@ -178,6 +171,7 @@ function game_get_all_players_pager($game, $header) {
   $table = module_invoke(game_get_module_from_gametype($game_type), 'game_get_db_table');
 
   $query = db_select('game_data', 'g')
+
     ->extend('PagerDefault')
     ->limit(25)
     ->extend('TableSort')
@@ -186,11 +180,9 @@ function game_get_all_players_pager($game, $header) {
   if ($table != "") {
     $query->join($table, 't', 't.uid = u.uid');
   }
-  $query
-    ->condition('g.gameid', $game_id, '=');
-  $query->groupBy('u.uid')
+  $query->condition('g.gameid', $game_id, '=')    
   ->fields('u', array('name', 'picture'))
-    ->fields('g');
+  ->fields('g');
   if ($table != "") {
     $query->fields('t');
   }
@@ -202,7 +194,8 @@ function game_get_all_players_pager($game, $header) {
     if (isset($res->entry['data'])) {
       $player['data'] = unserialize($player['data']);
     }
-    $players[$res->entry] = (object) $player;
+    if($player['gameid'] == $game_id)
+      $players[$res->entry] = (object) $player;
   }
   return $players;
 }
