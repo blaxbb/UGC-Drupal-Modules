@@ -13,7 +13,7 @@ function infection_form_game_register_form_alter(&$form, &$form_state, $form_id)
   for($i = 2; $i < 60; $i++)
   {
     $player = array('uid' => $i, 'gameid' =>$form['#game']['game_id']);
-    game_save_player($player);
+    //game_save_player($player);
   }
 
   if ($form['#game']['type_id'] != 'infection') {

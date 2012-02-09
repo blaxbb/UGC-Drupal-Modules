@@ -228,18 +228,13 @@ function _game_generate_id($length, $chars) {
   return $genid;
 }
 
-function game_generate_id($length, $game = NULL) {
-  $allchars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  if($game == null)
-  {
-    return _game_generate_id($length, $allchars);
-  }
-  
+function _game_iterate_id($length, $chars, $game)
+{
   $complete = FALSE;
   $iterations = 0;
   while($complete == FALSE && $iterations < 10) {
     $iterations++;
-    $id = _game_generate_id($length, $allchars);
+    $id = _game_generate_id($length, $chars);
     if(game_invoke($game, 'game_new_id_is_valid', $game, $id)) {
       drupal_set_message('ID generated in ' . $iterations . ' iterations.');
       return($id);
@@ -249,6 +244,22 @@ function game_generate_id($length, $game = NULL) {
   return FALSE;
 }
 
-function game_generate_safechars_id($length, $game = NULL) {
+function game_generate_id($length, $game = NULL) {
+  $allchars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  if($game == null)
+  {
+    return _game_generate_id($length, $allchars);
+  }
+  
+  return _game_iterate_id($length, $allchars, $game);
+}
 
+function game_generate_safechars_id($length, $game = NULL) {
+  $safechars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  if($game == null)
+  {
+    return _game_generate_id($length, $safechars);
+  }
+  
+  return _game_iterate_id($length, $safechars, $game);
 }
